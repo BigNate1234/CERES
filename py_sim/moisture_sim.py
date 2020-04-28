@@ -47,7 +47,7 @@ rate = 5
 error = .5
 
 # Box Num (1 through 15)
-box = 3
+box = 1
 
 # Data output path
 file_name= '../meas_data/box_' + str(box) + '/moisture.txt'
