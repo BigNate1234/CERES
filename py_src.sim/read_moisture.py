@@ -32,6 +32,8 @@ import time
 import argparse
 
 def discharge(a_pin,b_pin):
+  # Required to be enabled
+  return
   GPIO.setup(a_pin, GPIO.IN)
   GPIO.setup(b_pin, GPIO.OUT)
   GPIO.output(b_pin, False)
@@ -39,6 +41,8 @@ def discharge(a_pin,b_pin):
   GPIO.cleanup()
 
 def charge_time(a_pin,b_pin):
+  # Required to be enabled
+  return
   GPIO.setup(b_pin, GPIO.IN)
   GPIO.setup(a_pin, GPIO.OUT)
   count = 0
@@ -49,10 +53,14 @@ def charge_time(a_pin,b_pin):
   return count
 
 def analog_read(a_pin,b_pin):
+  # Required to be enabled
+  return 150
   discharge()
   return charge_time()
 
 def sensor_sel(sensor,s0_pin,s1_pin,s2_pin,s3_pin):
+  # Required to be enabled
+  return
   GPIO.setup(s0_pin, GPIO.OUT)
   GPIO.setup(s1_pin, GPIO.OUT)
   GPIO.setup(s2_pin, GPIO.OUT)

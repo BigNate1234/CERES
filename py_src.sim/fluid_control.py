@@ -68,7 +68,7 @@ def remap(x, oMin, oMax, nMin, nMax):
 def get_time(vol):
   # Need to map between distance and time moved
   volBound = 20 # mL
-  rate = 5 # mL/s
+  rate = 10 # mL/s
   maxTime = volBound / rate # s
   t = round(remap(vol, -volBound, volBound, -maxTime, maxTime),2)
   # Scale time to get milliseconds

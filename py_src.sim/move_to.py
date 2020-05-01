@@ -1,12 +1,12 @@
 '''
 ||
-|| @file 	fluid_control.py
-|| @version	1.2
+|| @file 	move_to.py
+|| @version	1.1
 || @author	Nathaniel Furman
 || @contact	nfurman@ieee.org
 ||
 || @description
-|| | Control the fluid sub-system.
+|| | Move to a specified location.
 || #
 ||
 || @license
@@ -27,8 +27,9 @@
 ||
 '''
 
-import argparse
 import gpiozero
+import time
+import argparse
 
 def remap(x, oMin, oMax, nMin, nMax):
 
@@ -65,56 +66,71 @@ def remap(x, oMin, oMax, nMin, nMax):
 
   return result
 
-def get_time(vol):
+def get_time(dist):
   # Need to map between distance and time moved
-  volBound = 20 # mL
-  rate = 5 # mL/s
-  maxTime = volBound / rate # s
-  t = round(remap(vol, -volBound, volBound, -maxTime, maxTime),2)
-  # Scale time to get milliseconds
-  return t
+  distBound = 200 # mm
+  speed = 80 # mm/s
+  maxTime = distBound / speed # s
+  t = round(remap(dist, -distBound, distBound, -maxTime, maxTime),2)
+  return t*1000
 
-def flow(t, relayPin, valvePin):
+def move(t,pin):
   # Duty cycle of signal
-  dc = 100.0
+  dc = 80.0
   # Frequency of signal
   freq = 10000
   onTime = dc / freq
-  offTime = 0.0
-  cycleNumRelay = int(t * 1.2 * freq/100) # Gives more time for pump
-  cycleNumValve = int(t * freq/100) # Scale because DC not 0<x<1
+  offTime = (100.0-dc) / freq
+  cycleNum = int(t/1000 * freq/100) # Scale because DC not 0<x<1
   
-  pR = gpiozero.PWMOutputDevice(relayPin,active_high=True,frequency=(freq*100))
-  pV = gpiozero.PWMOutputDevice(valvePin,active_high=True,frequency=(freq*100))
+  # active_high=True -> Usually off, natural behavior
+  # mult. Freq by 100 to get smoother behavior
+  p = gpiozero.PWMOutputDevice(pin,active_high=True,frequency=(freq*100))
   try:
-     pR.blink(on_time=onTime,off_time=offTime,n=cycleNumRelay,
-		background=True)
-     pV.blink(on_time=onTime,off_time=offTime,n=cycleNumValve,
-		background=False)
+     # If background False, program will wait
+     # If background True , program will continue
+     print("\tIn move_to: Starting movement, time to complete:",str(t))
+     p.blink(on_time=onTime,off_time=offTime,n=cycleNum,background=False)
+     print("\tIn move_to: Stopped movement")
   except KeyboardInterrupt:
      pass
-  pR.off()
-  pV.off()
+  p.off()
 
 if __name__=='__main__':
-  parser = argparse.ArgumentParser(description='Volume required?')
-  parser.add_argument('v', metavar='volume',default=-1, type=float,
-                      help='Volume for the pumps to flow.')
+  parser = argparse.ArgumentParser(description='Move location?')
+  parser.add_argument('x', metavar='xCord',default=-1, type=float,
+                      help='The x location in mm.')
+  parser.add_argument('y', metavar='yCord',default=-1, type=float,
+                      help='The y location in mm.')
   args = parser.parse_args()
-  vol = args.v
-
-  print('Pumping fluid...')
-  t = get_time(vol)
+  xLoc = args.x
+  yLoc = args.y
+  
+  if xLoc < 0.0 or yLoc < 0.0:
+    while xLoc < 0.0 or yLoc < 0.0:
+      print('Please input positive coordinates.')
+      try:
+        xLoc = float(input('X Location:'))
+        yLoc = float(input('Y Location:'))
+      except ValueError:
+        print('Please input a valid number.')
+  
+  print('X Location=',xLoc,'mm')
+  print('Y Location=',yLoc,'mm')
+  
+  print('Moving to location...')
+  tx = get_time(xLoc)
+  ty = get_time(yLoc)
   # Signal pin
-  rPin = 5
-  vPin = 12
-  flow(t, rPin, vPin)
+  xPin = 26
+  yPin = 13
+  move(tx, xPin)
+  move(ty, yPin)
   print('Done.')
 
 '''
 || @changelog
 || | 1.0 2020-04-30 - Nathaniel Furman : Initial Release
 || | 1.1 2020-04-30 - Nathaniel Furman : Updated importing
-|| | 1.2 2020-05-01 - Nathaniel Furman : Bug fixes 
 || #
 '''

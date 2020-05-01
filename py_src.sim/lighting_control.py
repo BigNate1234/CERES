@@ -50,11 +50,18 @@ def lights_on(i,t,pin):
   offTime = (100.0-dc) / freq
   cycleNum = int(t*60 * freq/100) # Scale because DC not 0<x<1
   
+  # active_high=True -> Usually off, natural behavior
+  # mult. Freq by 100 to get smoother behavior
   p = gpiozero.PWMOutputDevice(pin,active_high=True,frequency=(freq*100))
   try:
+     # If background False, program will wait
+     # If background True , program will continue
+     #startTime = time.time()
      p.blink(on_time=onTime,off_time=offTime,n=cycleNum,background=True)
+     #endTime = time.time()
   except KeyboardInterrupt:
      pass
+#  print('Time on: ',str(round(endTime - startTime,3)),' s')
   p.off()
 
 if __name__=='__main__':

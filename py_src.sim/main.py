@@ -68,7 +68,7 @@ if __name__=='__main__':
   # Start thread to run lighting
   # This will exit when main.py exits (because daemon is True)
   lightThread = threading.Thread(target=lighting_control.always_cycle,
-		args=(lIntensity,lOnTime,lPin,lOffTime), daemon=True)
+		args=(lIntensity,.01,lPin,.01), daemon=True)
   lightThread.start() 
 
   while True:
@@ -106,7 +106,7 @@ if __name__=='__main__':
 
       # Out of for loop, wait ten minutes before next measurement cycle
       print('Checked each box, entering cool-down.')
-      time.sleep(600)
+      time.sleep(10)
     except KeyboardInterrupt:
       print('\n\nExiting...')
       break
