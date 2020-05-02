@@ -105,7 +105,7 @@ def sensor_sel(sensor,s0_pin,s1_pin,s2_pin,s3_pin):
   GPIO.cleanup()
 
 def output_vals(box, reading):
-  box_file = '../meas_data/box_' + str(box) + '/moisture.txt'
+  box_file = '/home/pi/CERES/meas_data/box_' + str(box) + '/moisture.txt'
  
   try:
     with open(box_file, mode='a') as file:
